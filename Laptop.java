@@ -1,98 +1,34 @@
-// The immutable Computer class
-public class Computer {
+//Laptop computer: adds screen size to other Computer info
 
-    // For immutability
-    private final String CPU;
-    private final String RAM;
-    private final String disk;
+public class Laptop extends Computer { //Laptop inherits from Computer
+    String screenSize=null;
 
-    // Constructors
-    public Computer(String CPU, String RAM, String disk) {
-        if (CPU == null || CPU.isEmpty()) throw new IllegalArgumentException("CPU cannot be null or empty");
-        if (RAM == null || RAM.isEmpty()) throw new IllegalArgumentException("RAM cannot be null or empty");
-        if (disk == null || disk.isEmpty()) throw new IllegalArgumentException("Disk cannot be null or empty");
+    //Constructors
+    public Laptop() {} //No-arg constructor
 
-        this.CPU = CPU;
-        this.RAM = RAM;
-        this.disk = disk;
-    }
-
-    // Getter methods 
-    public String getCPU() {
-        return CPU;
-    }
-
-    public String getRAM() {
-        return RAM;
-    }
-
-    public String getDisk() {
-        return disk;
-    }
-
-    // Overriding toString to return a formatted string representation of the Computer object
-    @Override
-    public String toString() {
-        return "CPU: " + CPU + ", RAM: " + RAM + ", Disk: " + disk;
-    }
-}
-
-// The immutable Laptop class that uses composition with Computer
-public class Laptop {
-
-    // Private final fields for immutability
-    private final Computer computer;  // Composition: Laptop "has-a" Computer
-    private final String screenSize;
-
-    // Constructors
     public Laptop(String CPU, String RAM, String disk, String screenSize) {
-        if (screenSize == null || screenSize.isEmpty()) throw new IllegalArgumentException("Screen size cannot be null or empty");
+        //Inherited from Computer superclass
+        this.CPU=CPU;
+        this.RAM=RAM;
+        this.disk=disk;
 
-        this.computer = new Computer(CPU, RAM, disk);  // Composition over inheritance
-        this.screenSize = screenSize;
+        //Only in Laptop subclass
+        this.screenSize=screenSize;
     }
 
-    // Getter 
+    //Setter
+    public void setScreenSize(String screenSize) {
+        this.screenSize=screenSize;
+    }
+
+    //Getter
     public String getScreenSize() {
-        return screenSize;
+        return this.screenSize;
     }
 
-    // Getters to retrieve computer-related information
-    public String getCPU() {
-        return computer.getCPU();
-    }
-
-    public String getRAM() {
-        return computer.getRAM();
-    }
-
-    public String getDisk() {
-        return computer.getDisk();
-    }
-
-    // Overriding toString to provide a formatted string representation of the Laptop object
-    @Override
+    //Return formatted version of data
     public String toString() {
-        return "Type: Laptop, " + computer.toString() + ", Screen size: " + screenSize;
+        return "Type:Laptop\tCPU:" + this.CPU + "\tRAM:" + this.RAM + "\tDisk:" + this.disk + "\tScreen:" + this.screenSize;
     }
-}
-
-// Example usage in the main method
-public class Main {
-    public static void main(String[] args) {
-        
-        // Creating a Laptop object with valid details
-        Laptop laptop = new Laptop("Intel i7", "16GB", "512GB SSD", "15.6 inches");
-
-        // Accessing the details of the laptop
-        System.out.println("Laptop details: ");
-        System.out.println("CPU: " + laptop.getCPU());
-        System.out.println("RAM: " + laptop.getRAM());
-        System.out.println("Disk: " + laptop.getDisk());
-        System.out.println("Screen Size: " + laptop.getScreenSize());
-
-        // Displaying the laptop using toString
-        System.out.println("\nFormatted Laptop details: ");
-        System.out.println(laptop.toString());
-    }
+    
 }
