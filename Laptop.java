@@ -1,7 +1,7 @@
 
 
 // The immutable Laptop class that uses composition with Computer
-public class Laptop {
+public final class Laptop { //Hangxi: change it to final for immutability
 
     // Private final fields for immutability
     private final Computer computer;  // Composition: Laptop "has-a" Computer

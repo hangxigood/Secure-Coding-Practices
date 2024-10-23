@@ -1,6 +1,6 @@
 //Computer class: manages computer CPU, RAM and Disk information
 
-public class Computer {
+public final class Computer { //Hangxi: change it to final for immutability
     private final String CPU;
     private final String RAM;
     private final String disk;

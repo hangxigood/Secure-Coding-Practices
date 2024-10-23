@@ -4,7 +4,7 @@
 // Remove inheritance from Computer and add a private final Computer field.
 // Implement a constructor and getter methods.
 
-public class Desktop { //Inherits from Computer
+public final class Desktop { //Hangxi: change it to final for immutability
     private final Computer computer; //Composition
     private final String GPUType; // Hangxi: change it to final for immutability
 
@@ -41,6 +41,7 @@ public class Desktop { //Inherits from Computer
     @Override
     public String toString() {
         //return "Type:Desktop\tCPU:" + this.CPU + "\tRAM:" + this.RAM + "\tDisk:" + this.disk + "\tGPU:" + this.GPUType;
-        return "Type:Desktop\tCPU:" + this.computer.getCPU() + "\tRAM:" + this.computer.getRAM() + "\tDisk:" + this.computer.getDisk() + "\tGPU:" + this.GPUType;
+        // return "Type:Desktop\tCPU:" + this.computer.getCPU() + "\tRAM:" + this.computer.getRAM() + "\tDisk:" + this.computer.getDisk() + "\tGPU:" + this.GPUType;
+        return "Type:Desktop\t" + this.computer.toString() + "\tGPU:" + this.GPUType; //Hangxi: use the toString method of the Computer class
     }
 }
