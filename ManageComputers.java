@@ -3,15 +3,39 @@
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.stream.IntStream;
 
 public class ManageComputers {
+
+    // Validation whitelists
+    private static final Set<String> VALID_CPUS = Set.of("i5", "i7");
+    private static final Set<String> VALID_RAM = Set.of("16", "32");
+    private static final Set<String> VALID_DISK = Set.of("512", "1024");
+    private static final Set<String> VALID_GPU = Set.of("Nvidia", "AMD");
+    private static final Set<String> VALID_SCREEN = Set.of("13", "14");
+
+    // Helper method to validate input
+    private static String getValidInput(Scanner s, String prompt, Set<String> validValues) {
+        String input;
+        do {
+            System.out.print(prompt);
+            input = s.nextLine().trim();
+            if (!validValues.contains(input)) {
+                System.out.println("Error: '" + input + "' is not valid.");
+                System.out.println("Please enter one of these values: " + String.join(", ", validValues));
+            }
+        } while (!validValues.contains(input));
+        return input;
+    }
 
     public static void main(String args[]) {
 
         //This ArrayList will hold all the computers in the system. Note that the type of objects expected in this
         //ArrayList are Computer, not Laptop or Desktop, but since those are subclasses of Computer they can be
         //stored in an ArrayLiust<Computer> anyway.
-        ArrayList<Computer> computers = new ArrayList<Computer>(); 
+        ArrayList<Object> computers = new ArrayList<Object>(); 
 
         Scanner s = new Scanner(System.in);
         String menuOption="";
@@ -78,14 +102,14 @@ public class ManageComputers {
 
     //-----------------------------
     //Show data for all laptops and desktops stored in ArrayList<Computer> create in main() method
-    private static void showComputers(ArrayList<Computer> computers) {
+    private static void showComputers(ArrayList<Object> computers) {
         int computerListNumber=0; //This variable is used to hold the "list number" for each computer, starting at 1.
 
         System.out.println("=========");
 
         System.out.println("LIST OF COMPUTERS:-");
 
-        for (Computer c: computers) {
+        for (Object c: computers) {
 
             computerListNumber++; //Increment list number for each computer
 
@@ -99,58 +123,42 @@ public class ManageComputers {
 
     //-----------------------------
     //Add a new Laptop or Desktop computer to the ArrayList<Computer>
-    private static void addComputer(ArrayList<Computer> computers, Scanner s) {
-        String computerType="";
-
-        Computer tempComputer=null;
-
+    private static void addComputer(ArrayList<Object> computers, Scanner s) {
         System.out.println("ADDING COMPUTER:-");
+        String computerType = getValidInput(s, 
+            "Enter type of computer to add ('L' for Laptop, 'D' for Desktop): ", 
+            Set.of("l", "d"));
 
-        System.out.println("Enter type of computer to add ('L' for Laptop, 'D' for Desktop):");
-        computerType=s.nextLine();
-        computerType=computerType.toLowerCase(); //Convert to lower case for comparison purposes
+        Computer baseComputer = getComputerData(s);
 
         switch(computerType) {
-
-            //Add a laptop
-            case "l": 
-
-                //Get CPU, RAM and Disk info
-                tempComputer = getComputerData(s); 
-
-                System.out.print("Enter screen size:");
-                String screenSize = s.nextLine();
-
-                //Add new Laptop to ArrayList in main() method
-                computers.add(new Laptop(tempComputer.getCPU(),tempComputer.getRAM(),tempComputer.getDisk(),screenSize)); 
-
+            case "l":
+                String screenSize = getValidInput(s, 
+                    "Enter screen size (13/14): ", 
+                    VALID_SCREEN);
+                computers.add(Laptop.createLaptop(
+                    baseComputer.getCpu(),
+                    baseComputer.getRam(),
+                    baseComputer.getDisk(),
+                    screenSize));
                 break;
             
-            //Add a desktop    
-            case "d": 
-
-            //Get CPU, RAM and Disk info
-                tempComputer = getComputerData(s); 
-
-                System.out.print("Enter GPU:");
-                String GPUType = s.nextLine();
-
-                //Add new Desktop to ArrayList in main() method
-                computers.add(new Desktop(tempComputer.getCPU(),tempComputer.getRAM(),tempComputer.getDisk(),GPUType)); 
-
+            case "d":
+                String gpuType = getValidInput(s, 
+                    "Enter GPU (Nvidia/AMD): ", 
+                    VALID_GPU);
+                computers.add(Desktop.createDesktop(
+                    baseComputer.getCpu(),
+                    baseComputer.getRam(),
+                    baseComputer.getDisk(),
+                    gpuType));
                 break;
-
-            //Invalid computer type to add entered
-            default:
-
-                System.out.println("Invalid computer type entered!");
-
         }
     } //End of addComputer
 
     //-----------------------------
     //Delete a specified computer from the ArrayList
-    private static void deleteComputer(ArrayList<Computer> computers, Scanner s) {
+    private static void deleteComputer(ArrayList<Object> computers, Scanner s) {
         int computerListNumberToDelete=0;
 
         System.out.println("DELETE COMPUTER:-");
@@ -172,108 +180,49 @@ public class ManageComputers {
     //-----------------------------
     //Edit a computer. Since Laptop and Desktop are mutable classses/object get new data values and replace old
     //attribute values in object being edited using object setter methods
-    private static void editComputer(ArrayList<Computer> computers, Scanner s) {
-        int computerListNumberToEdit=0;
-        String computerType="";
-        Computer tempComputer=null;
-
+    private static void editComputer(ArrayList<Object> computers, Scanner s) {
         System.out.println("EDIT COMPUTER:-");
-
-        System.out.print("Enter number of computer to edit:");
-        computerListNumberToEdit = Integer.parseInt(s.nextLine());
-
-        //Check that computerListNumberToEdit is valid first
-        if (computerListNumberToEdit>=1 && computerListNumberToEdit<=computers.size()) {
-
-            //Determine exact type of computer being edited
-            //Subtract 1 to get ArrayList index from on-screen list number
-            if (computers.get(computerListNumberToEdit-1) instanceof Laptop) { 
-                computerType="laptop";
-            }
-            //Subtract 1 to get ArrayList index from on-screen list number
-            else if (computers.get(computerListNumberToEdit-1) instanceof Desktop) { 
-                computerType="desktop";
-            }
-
         
-            //Edit computer
-            switch(computerType) {
+        int computerListNumberToEdit = Integer.parseInt(
+            getValidInput(s, "Enter number of computer to edit: ", 
+            Set.of(IntStream.rangeClosed(1, computers.size())
+                .mapToObj(String::valueOf)
+                .toArray(String[]::new)))
+        );
 
-                //Editing a laptop
-                case "laptop": 
-            
-                    System.out.println("Editing a Laptop:");
+        int index = computerListNumberToEdit - 1;
+        Object currentComputer = computers.get(index);
+        Computer baseComputer = getComputerData(s);
 
-                    //Get CPU, RAM and Disk info, store in temporary Computer-type object
-                    tempComputer = getComputerData(s); 
-
-                    System.out.print("Enter screen size:");
-                    String screenSize = s.nextLine();
-
-                    //Get reference to the object in ArrayList<Computer> to edit
-                    //Cast Computer to Laptop for setScreenSize call a few lines of code later
-                    Laptop laptopToEdit = (Laptop)computers.get(computerListNumberToEdit-1);
-
-                    //Use setter methods to change mutable object state
-                    laptopToEdit.setCPU(tempComputer.getCPU());
-                    laptopToEdit.setRAM(tempComputer.getRAM());
-                    laptopToEdit.setDisk(tempComputer.getDisk());
-                    laptopToEdit.setScreenSize(screenSize);
-
-                    break;
-
-                //Editing a desktop, store in temporary Computer-type object
-                case "desktop": 
-
-                    System.out.println("Editing a Desktop:");
-
-                    //Get CPU, RAM and Disk info
-                    tempComputer = getComputerData(s); 
-
-                    System.out.print("Enter GPU:");
-                    String GPUType = s.nextLine();
-
-                    //Get reference to the object in ArrayList<Computer> to edit
-                    //Cast Computer to Laptop for setScreenSize call a few lines of code later
-                    Desktop desktopToEdit = (Desktop)computers.get(computerListNumberToEdit-1);
-
-                    //Use setter methods to change mutable object state
-                    desktopToEdit.setCPU(tempComputer.getCPU());
-                    desktopToEdit.setRAM(tempComputer.getRAM());
-                    desktopToEdit.setDisk(tempComputer.getDisk());
-                    desktopToEdit.setGPUType(GPUType);
-
-                    break;
-
-            }
-
+        if (currentComputer instanceof Laptop) {
+            String screenSize = getValidInput(s, 
+                "Enter screen size (13/14): ", 
+                VALID_SCREEN);
+            computers.set(index, Laptop.createLaptop(
+                baseComputer.getCpu(),
+                baseComputer.getRam(),
+                baseComputer.getDisk(),
+                screenSize));
+        } else if (currentComputer instanceof Desktop) {
+            String gpuType = getValidInput(s, 
+                "Enter GPU (Nvidia/AMD): ", 
+                VALID_GPU);
+            computers.set(index, Desktop.createDesktop(
+                baseComputer.getCpu(),
+                baseComputer.getRam(),
+                baseComputer.getDisk(),
+                gpuType));
         }
-        else {
-            System.out.println("Invalid computer number entered!");
-        }
-
-
     } //End of editComputer
 
     //-----------------------------
     //Helper method to get data common to Laptop and Desktop (CPU, RAM and disk) objects. Returns a Computer-type object
     //holding these values as attribues
     private static Computer getComputerData(Scanner s) {
-        String CPU="";
-        String RAM="";
-        String disk="";
-
-        System.out.print("Enter CPU:");
-        CPU = s.nextLine();
-
-        System.out.print("Enter RAM:");
-        RAM = s.nextLine();
-
-        System.out.print("Enter Disk:");
-        disk = s.nextLine();
-
-        return new Computer(CPU,RAM,disk);
-
+        String cpu = getValidInput(s, "Enter CPU (i5/i7): ", VALID_CPUS);
+        String ram = getValidInput(s, "Enter RAM (16/32): ", VALID_RAM);
+        String disk = getValidInput(s, "Enter Disk (512/1024): ", VALID_DISK);
+        return Computer.createComputer(cpu, ram, disk);
     } //End of getComputerData
 
 

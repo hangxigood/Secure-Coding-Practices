@@ -1,34 +1,50 @@
-//Laptop computer: adds screen size to other Computer info
+// Laptop class: Represents a laptop computer
+// Uses composition to include Computer functionality plus screen size information
+// Class is immutable (final) and all fields are final
+public final class Laptop {
+    // Composition: contains a Computer instance instead of inheriting from it
+    private final Computer computer;    // Core computer specifications
+    private final String screenSize;    // Laptop-specific screen size information
 
-public class Laptop extends Computer { //Laptop inherits from Computer
-    String screenSize=null;
-
-    //Constructors
-    public Laptop() {} //No-arg constructor
-
-    public Laptop(String CPU, String RAM, String disk, String screenSize) {
-        //Inherited from Computer superclass
-        this.CPU=CPU;
-        this.RAM=RAM;
-        this.disk=disk;
-
-        //Only in Laptop subclass
-        this.screenSize=screenSize;
+    // Private constructor enforces use of factory method
+    private Laptop(Computer computer, String screenSize) {
+        this.computer = computer;
+        this.screenSize = screenSize;
     }
 
-    //Setter
-    public void setScreenSize(String screenSize) {
-        this.screenSize=screenSize;
+    // Factory method to create Laptop instances
+    // Parameters:
+    //   cpu        - CPU type (i5/i7)
+    //   ram        - RAM amount (16/32)
+    //   disk       - Disk size (512/1024)
+    //   screenSize - Screen size (13/14)
+    // Returns: new immutable Laptop instance
+    public static Laptop createLaptop(String cpu, String ram, String disk, String screenSize) {
+        return new Laptop(Computer.createComputer(cpu, ram, disk), screenSize);
     }
 
-    //Getter
+    // Delegate methods to access Computer properties
+    public String getCpu() {
+        return computer.getCpu();
+    }
+
+    public String getRam() {
+        return computer.getRam();
+    }
+
+    public String getDisk() {
+        return computer.getDisk();
+    }
+
+    // Laptop-specific getter
     public String getScreenSize() {
-        return this.screenSize;
+        return screenSize;
     }
 
-    //Return formatted version of data
+    // Provides formatted string representation of laptop specifications
+    // Format: "Type:Laptop    [computer specs]    Screen:[value]"
+    @Override
     public String toString() {
-        return "Type:Laptop\tCPU:" + this.CPU + "\tRAM:" + this.RAM + "\tDisk:" + this.disk + "\tScreen:" + this.screenSize;
+        return "Type:Laptop\t" + computer.toString() + "\tScreen:" + screenSize;
     }
-    
 }
